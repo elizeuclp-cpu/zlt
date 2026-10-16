@@ -9,13 +9,13 @@ import matplotlib.pyplot as plt
 # ============================================================
 
 st.set_page_config(
-    page_title="Calculadora de Impedância de Linhas Aéreas",
+    page_title="ZLT - Calculadora de Impedância de Linhas Aéreas",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-st.title("⚡ Calculadora de Impedância de Linhas Aéreas")
+st.title("⚡ ZLT - Calculadora de Impedância de Linhas Aéreas")
 
 st.caption(
     "Calculo das matrizes de indutância, reatância, "
