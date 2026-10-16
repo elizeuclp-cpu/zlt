@@ -5,17 +5,23 @@ import matplotlib.pyplot as plt
 
 
 # ============================================================
-# CONFIGURAÇÃO DA PÁGINA
+# CONFIGURACAO DA PAGINA
 # ============================================================
 
 st.set_page_config(
-    page_title="Calculadora de Impedância de Linhas Aéreas",
+    page_title="Calculadora de Impedancia de Linhas Aereas",
     page_icon="⚡",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="collapsed",
 )
 
-st.title("⚡ Calculadora de Impedância de Linhas Aéreas")
+st.title("⚡ Calculadora de Impedancia de Linhas Aereas")
+
+st.caption(
+    "Calculo das matrizes de indutancia, reatancia, "
+    "resistencia e impedancia serie da linha."
+)
+
 st.markdown("---")
 
 
@@ -23,70 +29,68 @@ st.markdown("---")
 # CONSTANTES
 # ============================================================
 
-mu0 = 4 * np.pi * 1e-7
-K = mu0 / (2 * np.pi)
+MU0 = 4 * np.pi * 1e-7
+K = MU0 / (2 * np.pi)
 
 
 # ============================================================
-# DADOS DOS CABOS
+# DADOS DOS CABOS DE FASE
 # ============================================================
 
-cabos_fase = {
+CABOS_FASE = {
     "Linnet (336,4 MCM)": {
         "GMR": 0.00742,
         "diam": 0.01831,
-        "R": 0.203
+        "R": 0.203,
     },
-
     "Grosbeak (636 MCM)": {
         "GMR": 0.01021,
         "diam": 0.02515,
-        "R": 0.108
+        "R": 0.108,
     },
-
     "Raven (1/0 AWG)": {
         "GMR": 0.00388,
         "diam": 0.01011,
-        "R": 0.709
+        "R": 0.709,
     },
-
     "Penguin (4/0 AWG)": {
         "GMR": 0.00550,
         "diam": 0.01431,
-        "R": 0.380
+        "R": 0.380,
     },
-
     "Cairo (465,4 MCM)": {
         "GMR": 0.00753,
         "diam": 0.01990,
-        "R": 0.170
+        "R": 0.170,
     },
-
     "Flint (740,8 MCM)": {
         "GMR": 0.00966,
         "diam": 0.02513,
-        "R": 0.108
-    }
-}
-
-
-cabos_pr = {
-    '5/16"': {
-        "GMR": 0.0025,
-        "diam": 0.00794,
-        "R": 4.76 * (1 + 0.004 * (75 - 20))
+        "R": 0.108,
     },
-
-    '3/8"': {
-        "GMR": 0.0030,
-        "diam": 0.00952,
-        "R": 3.44 * (1 + 0.004 * (75 - 20))
-    }
 }
 
 
 # ============================================================
-# FUNÇÕES
+# DADOS DOS CABOS PARA-RAIOS
+# ============================================================
+
+CABOS_PR = {
+    '5/16"': {
+        "GMR": 0.0025,
+        "diam": 0.00794,
+        "R": 4.76 * (1 + 0.004 * (75 - 20)),
+    },
+    '3/8"': {
+        "GMR": 0.0030,
+        "diam": 0.00952,
+        "R": 3.44 * (1 + 0.004 * (75 - 20)),
+    },
+}
+
+
+# ============================================================
+# FUNCOES
 # ============================================================
 
 def altura_equivalente(y, flecha, delta_h):
@@ -94,28 +98,28 @@ def altura_equivalente(y, flecha, delta_h):
 
 
 def distancia(p1, p2):
-    return np.sqrt(
-        (p1[0] - p2[0]) ** 2 +
-        (p1[1] - p2[1]) ** 2
+    return np.hypot(
+        p1[0] - p2[0],
+        p1[1] - p2[1],
     )
 
 
 def distancia_imagem(p1, p2):
-    return np.sqrt(
-        (p1[0] - p2[0]) ** 2 +
-        (p1[1] + p2[1]) ** 2
+    return np.hypot(
+        p1[0] - p2[0],
+        p1[1] + p2[1],
     )
 
 
-def criar_dataframe_real(matriz, nomes):
+def df_real(matriz, nomes):
     return pd.DataFrame(
         matriz,
         index=nomes,
-        columns=nomes
+        columns=nomes,
     )
 
 
-def criar_dataframe_complexo(matriz, nomes):
+def df_complexo(matriz, nomes):
 
     dados = []
 
@@ -137,7 +141,7 @@ def criar_dataframe_complexo(matriz, nomes):
     return pd.DataFrame(
         dados,
         index=nomes,
-        columns=nomes
+        columns=nomes,
     )
 
 
@@ -151,7 +155,7 @@ def plotar_geometria(coords):
         "A": "red",
         "B": "blue",
         "C": "green",
-        "P": "gray"
+        "P": "gray",
     }
 
     for nome, ponto in coords.items():
@@ -164,7 +168,7 @@ def plotar_geometria(coords):
             y,
             s=120,
             color=cores.get(nome, "black"),
-            zorder=3
+            zorder=3,
         )
 
         ax.annotate(
@@ -172,14 +176,14 @@ def plotar_geometria(coords):
             (x, y),
             xytext=(7, 7),
             textcoords="offset points",
-            fontweight="bold"
+            fontweight="bold",
         )
 
     ax.axhline(
         y=0,
         color="saddlebrown",
         linewidth=2,
-        label="Solo"
+        label="Solo",
     )
 
     ax.set_xlabel(
@@ -196,12 +200,12 @@ def plotar_geometria(coords):
 
     ax.grid(
         True,
-        alpha=0.25
+        alpha=0.25,
     )
 
     ax.legend()
 
-    plt.tight_layout()
+    fig.tight_layout()
 
     return fig
 
@@ -212,7 +216,7 @@ def plotar_geometria(coords):
 
 col1, col2 = st.columns(
     [1, 1],
-    gap="large"
+    gap="large",
 )
 
 
@@ -223,31 +227,29 @@ col1, col2 = st.columns(
 with col1:
 
     st.subheader(
-        "⚙️ 1. CONFIGURAÇÕES GERAIS"
+        "⚙️ 1. CONFIGURACOES GERAIS"
     )
 
     frequencia = st.number_input(
-        "Frequência (Hz)",
+        "Frequencia (Hz)",
         min_value=1.0,
         value=60.0,
-        step=1.0
+        step=1.0,
     )
 
     delta_altura = st.slider(
-        "Ajuste de altura ΔH (m)",
+        "Ajuste de altura delta H (m)",
         min_value=-20.0,
         max_value=20.0,
         value=0.0,
-        step=0.5
+        step=0.5,
     )
-
 
     st.markdown("---")
 
-
-    # ========================================================
-    # CABO FASE
-    # ========================================================
+    # --------------------------------------------------------
+    # CABO DAS FASES
+    # --------------------------------------------------------
 
     st.subheader(
         "🔌 2. CABO DAS FASES"
@@ -255,84 +257,73 @@ with col1:
 
     cabo_fase_nome = st.selectbox(
         "Cabo fase",
-        list(cabos_fase.keys())
+        list(CABOS_FASE.keys()),
     )
-
 
     n_sub = st.selectbox(
         "Subcondutores por fase",
         [1, 2],
-        format_func=lambda x:
-        "1 condutor"
-        if x == 1
-        else "2 subcondutores"
+        format_func=lambda valor: (
+            "1 condutor"
+            if valor == 1
+            else "2 subcondutores"
+        ),
     )
 
-
     dist_sub = st.number_input(
-        "Espaçamento do feixe (m)",
+        "Espacamento do feixe (m)",
         min_value=0.001,
         value=0.305,
         step=0.005,
-        disabled=(n_sub == 1)
+        disabled=(n_sub == 1),
     )
-
 
     flecha_fase = st.number_input(
         "Flecha das fases (m)",
         min_value=0.0,
         value=0.0,
-        step=0.1
+        step=0.1,
     )
 
+    # --------------------------------------------------------
+    # RESULTADOS PRELIMINARES
+    # --------------------------------------------------------
 
-    # ========================================================
-    # VALORES EQUIVALENTES
-    # ========================================================
-
-    cabo_selecionado = cabos_fase[
+    cabo_interface = CABOS_FASE[
         cabo_fase_nome
     ]
 
-
-    R_individual = cabo_selecionado["R"]
-
-
-    R_equivalente = (
-        R_individual / n_sub
+    r_interface = (
+        cabo_interface["R"] / n_sub
     )
-
 
     if n_sub == 1:
 
-        GMR_equivalente = (
-            cabo_selecionado["GMR"]
+        gmr_interface = (
+            cabo_interface["GMR"]
         )
 
     else:
 
-        GMR_equivalente = np.sqrt(
-            cabo_selecionado["GMR"]
+        gmr_interface = np.sqrt(
+            cabo_interface["GMR"]
             * dist_sub
         )
 
+    met1, met2 = st.columns(2)
 
-    coluna_r, coluna_gmr = st.columns(2)
-
-
-    with coluna_r:
+    with met1:
 
         st.metric(
             "R equivalente",
-            f"{R_equivalente:.4f} Ω/km"
+            f"{r_interface:.4f} ohm/km",
         )
 
-
-    with coluna_gmr:
+    with met2:
 
         st.metric(
             "GMR equivalente",
-            f"{GMR_equivalente:.6f} m"
+            f"{gmr_interface:.6f} m",
         )
 
 
@@ -346,351 +337,297 @@ with col2:
         "📐 3. COORDENADAS DAS FASES"
     )
 
-
     st.caption(
-        "Informe as coordenadas X e Y em metros."
+        "Informe X e Y em metros. "
+        "Y corresponde a altura do condutor."
     )
 
-
-    # ========================================================
+    # --------------------------------------------------------
     # FASE A
-    # ========================================================
+    # --------------------------------------------------------
 
     a1, a2 = st.columns(2)
-
 
     with a1:
 
         xa = st.number_input(
             "XA (m)",
             value=-2.0,
-            step=0.1
+            step=0.1,
         )
-
 
     with a2:
 
         ya = st.number_input(
             "YA (m)",
             value=20.0,
-            step=0.1
+            step=0.1,
         )
 
-
-    # ========================================================
+    # --------------------------------------------------------
     # FASE B
-    # ========================================================
+    # --------------------------------------------------------
 
     b1, b2 = st.columns(2)
-
 
     with b1:
 
         xb = st.number_input(
             "XB (m)",
             value=0.0,
-            step=0.1
+            step=0.1,
         )
-
 
     with b2:
 
         yb = st.number_input(
             "YB (m)",
             value=18.0,
-            step=0.1
+            step=0.1,
         )
 
-
-    # ========================================================
+    # --------------------------------------------------------
     # FASE C
-    # ========================================================
+    # --------------------------------------------------------
 
     c1, c2 = st.columns(2)
-
 
     with c1:
 
         xc = st.number_input(
             "XC (m)",
             value=2.0,
-            step=0.1
+            step=0.1,
         )
-
 
     with c2:
 
         yc = st.number_input(
             "YC (m)",
             value=20.0,
-            step=0.1
+            step=0.1,
         )
-
 
     st.markdown("---")
 
-
-    # ========================================================
-    # PARA-RAIO
-    # ========================================================
+    # --------------------------------------------------------
+    # CABO PARA-RAIO
+    # --------------------------------------------------------
 
     st.subheader(
         "🛡️ 4. CABO PARA-RAIO"
     )
 
-
     tem_pr = st.checkbox(
         "Existe cabo para-raio"
     )
-
 
     if tem_pr:
 
         cabo_pr_nome = st.selectbox(
             "Cabo para-raio",
-            list(cabos_pr.keys())
+            list(CABOS_PR.keys()),
         )
-
 
         flecha_pr = st.number_input(
             "Flecha do para-raio (m)",
             min_value=0.0,
             value=0.0,
-            step=0.1
+            step=0.1,
         )
 
-
         p1, p2 = st.columns(2)
-
 
         with p1:
 
             xp = st.number_input(
                 "XP (m)",
                 value=0.0,
-                step=0.1
+                step=0.1,
             )
-
 
         with p2:
 
             yp = st.number_input(
                 "YP (m)",
                 value=23.0,
-                step=0.1
+                step=0.1,
             )
-
 
     else:
 
         cabo_pr_nome = None
-
         flecha_pr = 0.0
-
         xp = 0.0
-
         yp = 0.0
 
 
 # ============================================================
-# BOTÃO
+# BOTAO
 # ============================================================
 
 st.markdown("---")
 
-
 calcular = st.button(
-    "🔍 Calcular parâmetros elétricos",
+    "🔍 Calcular parametros eletricos",
     type="primary",
-    use_container_width=True
+    use_container_width=True,
 )
 
 
 # ============================================================
-# CÁLCULO
+# PROCESSAMENTO
 # ============================================================
 
 if calcular:
 
     try:
 
-        # ====================================================
-        # CABO FASE
-        # ====================================================
+        # ----------------------------------------------------
+        # DADOS DO CABO FASE
+        # ----------------------------------------------------
 
-        cf = cabos_fase[
+        cf = CABOS_FASE[
             cabo_fase_nome
         ]
 
+        gmr_base = cf["GMR"]
+        r_individual = cf["R"]
 
-        GMR_base = cf["GMR"]
+        # A resistencia e dividida pelo numero
+        # de subcondutores em paralelo.
 
+        rf = r_individual / n_sub
 
-        # IMPORTANTE:
-        # Resistência do feixe
-        Rf = (
-            cf["R"] / n_sub
-        )
-
-
-        # ====================================================
-        # GMR DO FEIXE
-        # ====================================================
+        # ----------------------------------------------------
+        # GMR EQUIVALENTE
+        # ----------------------------------------------------
 
         if n_sub == 1:
 
-            GMR_f = GMR_base
+            gmr_f = gmr_base
 
         else:
 
-            GMR_f = np.sqrt(
-                GMR_base *
-                dist_sub
+            gmr_f = np.sqrt(
+                gmr_base * dist_sub
             )
 
-
-        # ====================================================
+        # ----------------------------------------------------
         # COORDENADAS
-        # ====================================================
+        # ----------------------------------------------------
 
-        coords = {}
+        coords = {
+            "A": [
+                xa,
+                altura_equivalente(
+                    ya,
+                    flecha_fase,
+                    delta_altura,
+                ),
+            ],
+            "B": [
+                xb,
+                altura_equivalente(
+                    yb,
+                    flecha_fase,
+                    delta_altura,
+                ),
+            ],
+            "C": [
+                xc,
+                altura_equivalente(
+                    yc,
+                    flecha_fase,
+                    delta_altura,
+                ),
+            ],
+        }
 
-
-        coords["A"] = [
-            xa,
-            altura_equivalente(
-                ya,
-                flecha_fase,
-                delta_altura
-            )
-        ]
-
-
-        coords["B"] = [
-            xb,
-            altura_equivalente(
-                yb,
-                flecha_fase,
-                delta_altura
-            )
-        ]
-
-
-        coords["C"] = [
-            xc,
-            altura_equivalente(
-                yc,
-                flecha_fase,
-                delta_altura
-            )
-        ]
-
-
-        # ====================================================
-        # PARA-RAIO
-        # ====================================================
+        # ----------------------------------------------------
+        # CABO PARA-RAIO
+        # ----------------------------------------------------
 
         if tem_pr:
 
-            cp = cabos_pr[
+            cp = CABOS_PR[
                 cabo_pr_nome
             ]
 
-
-            GMR_P = cp["GMR"]
-
-
-            Rp = cp["R"]
-
+            gmr_p = cp["GMR"]
+            rp = cp["R"]
 
             coords["P"] = [
                 xp,
                 altura_equivalente(
                     yp,
                     flecha_pr,
-                    delta_altura
-                )
+                    delta_altura,
+                ),
             ]
-
 
         else:
 
-            GMR_P = None
+            gmr_p = None
+            rp = None
 
-            Rp = None
+        # ----------------------------------------------------
+        # LISTA DE CONDUTORES
+        # ----------------------------------------------------
 
-
-        # ====================================================
-        # CONDUTORES
-        # ====================================================
-
-        condutores = [
-            "A",
-            "B",
-            "C"
-        ]
-
-
-        if tem_pr:
-
-            condutores.append(
-                "P"
-            )
-
+        condutores = list(
+            coords.keys()
+        )
 
         n = len(condutores)
 
+        # ----------------------------------------------------
+        # VALIDACAO DAS ALTURAS
+        # ----------------------------------------------------
 
-        # ====================================================
-        # VALIDAÇÃO
-        # ====================================================
+        for nome, ponto in coords.items():
 
-        for nome in condutores:
-
-            if coords[nome][1] <= 0:
+            if ponto[1] <= 0:
 
                 raise ValueError(
-                    f"A altura equivalente do "
-                    f"condutor {nome} deve ser "
-                    f"maior que zero."
+                    f"A altura equivalente do condutor "
+                    f"{nome} deve ser maior que zero."
                 )
 
+        # ----------------------------------------------------
+        # VALIDACAO DAS DISTANCIAS
+        # ----------------------------------------------------
 
         for i in range(n):
 
             for j in range(
                 i + 1,
-                n
+                n,
             ):
 
                 ci = condutores[i]
-
                 cj = condutores[j]
 
-
-                D = distancia(
+                d_condutores = distancia(
                     coords[ci],
-                    coords[cj]
+                    coords[cj],
                 )
 
-
-                if D <= 0:
+                if d_condutores <= 0:
 
                     raise ValueError(
-                        f"Os condutores {ci} "
-                        f"e {cj} ocupam a "
-                        f"mesma posição."
+                        f"Os condutores {ci} e {cj} "
+                        f"ocupam a mesma posicao."
                     )
 
-
         # ====================================================
-        # MATRIZ DE INDUTÂNCIA
+        # MATRIZ DE INDUTANCIA
         # ====================================================
 
-        L = np.zeros(
-            (n, n)
+        l_mat = np.zeros(
+            (n, n),
+            dtype=float,
         )
-
 
         for i, ci in enumerate(
             condutores
@@ -701,211 +638,201 @@ if calcular:
             ):
 
                 pi = coords[ci]
-
                 pj = coords[cj]
-
 
                 if i == j:
 
                     if ci == "P":
 
-                        GMR = GMR_P
+                        gmr = gmr_p
 
                     else:
 
-                        GMR = GMR_f
+                        gmr = gmr_f
 
-
-                    L[i, j] = (
-                        K *
-                        np.log(
-                            (2 * pi[1]) /
-                            GMR
+                    l_mat[i, j] = (
+                        K
+                        * np.log(
+                            (2 * pi[1]) / gmr
                         )
                     )
-
 
                 else:
 
-                    D_real = distancia(
+                    d_real = distancia(
                         pi,
-                        pj
+                        pj,
                     )
 
-
-                    D_imagem = distancia_imagem(
+                    d_imagem = distancia_imagem(
                         pi,
-                        pj
+                        pj,
                     )
 
-
-                    L[i, j] = (
-                        K *
-                        np.log(
-                            D_imagem /
-                            D_real
+                    l_mat[i, j] = (
+                        K
+                        * np.log(
+                            d_imagem / d_real
                         )
                     )
 
-
         # H/m para H/km
 
-        L *= 1000
-
+        l_mat = l_mat * 1000
 
         # ====================================================
-        # MATRIZ DE REATÂNCIA
+        # MATRIZ DE REATANCIA
         # ====================================================
 
-        X = (
-            2 *
-            np.pi *
-            frequencia *
-            L
+        x_mat = (
+            2
+            * np.pi
+            * frequencia
+            * l_mat
         )
 
-
         # ====================================================
-        # MATRIZ DE RESISTÊNCIA
+        # MATRIZ DE RESISTENCIA
         # ====================================================
 
-        R = np.zeros_like(
-            L
+        r_mat = np.zeros_like(
+            l_mat
         )
 
-
-        for i in range(3):
-
-            R[i, i] = Rf
-
+        r_mat[0, 0] = rf
+        r_mat[1, 1] = rf
+        r_mat[2, 2] = rf
 
         if tem_pr:
 
-            R[3, 3] = Rp
-
+            r_mat[3, 3] = rp
 
         # ====================================================
-        # MATRIZ DE IMPEDÂNCIA
+        # MATRIZ DE IMPEDANCIA
         # ====================================================
 
-        Z = (
-            R +
-            1j * X
+        z_mat = (
+            r_mat
+            + 1j * x_mat
         )
 
-
         # ====================================================
-        # REDUÇÃO DE KRON
+        # REDUCAO DE KRON
         # ====================================================
 
         if tem_pr:
 
-            Z_ff = Z[
+            z_ff = z_mat[
                 0:3,
-                0:3
+                0:3,
             ]
 
-
-            Z_fp = Z[
+            z_fp = z_mat[
                 0:3,
-                3
+                3,
             ].reshape(
                 3,
-                1
+                1,
             )
 
-
-            Z_pf = Z[
+            z_pf = z_mat[
                 3,
-                0:3
+                0:3,
             ].reshape(
                 1,
-                3
+                3,
             )
 
-
-            Z_pp = Z[
+            z_pp = z_mat[
                 3,
-                3
+                3,
             ]
 
-
-            if abs(Z_pp) == 0:
+            if abs(z_pp) == 0:
 
                 raise ValueError(
-                    "A impedância do "
-                    "para-raio não pode "
-                    "ser zero."
+                    "A impedancia do cabo "
+                    "para-raio nao pode ser zero."
                 )
 
-
-            Z_red = (
-                Z_ff -
-                (Z_fp @ Z_pf) /
-                Z_pp
+            z_red = (
+                z_ff
+                - (z_fp @ z_pf) / z_pp
             )
-
 
         else:
 
-            Z_red = Z
-
+            z_red = z_mat
 
         # ====================================================
-        # IMPEDÂNCIAS
+        # IMPEDANCIAS POR FASE
         # ====================================================
 
-        ZA = (
-            Z_red[0, 0]
-            - 0.5 *
-            (
-                Z_red[0, 1]
-                + Z_red[0, 2]
+        za = (
+            z_red[0, 0]
+            - 0.5
+            * (
+                z_red[0, 1]
+                + z_red[0, 2]
             )
         )
 
-
-        ZB = (
-            Z_red[1, 1]
-            - 0.5 *
-            (
-                Z_red[1, 0]
-                + Z_red[1, 2]
+        zb = (
+            z_red[1, 1]
+            - 0.5
+            * (
+                z_red[1, 0]
+                + z_red[1, 2]
             )
         )
 
-
-        ZC = (
-            Z_red[2, 2]
-            - 0.5 *
-            (
-                Z_red[2, 0]
-                + Z_red[2, 1]
+        zc = (
+            z_red[2, 2]
+            - 0.5
+            * (
+                z_red[2, 0]
+                + z_red[2, 1]
             )
         )
 
-
-        Z_med = (
-            ZA +
-            ZB +
-            ZC
+        z_med = (
+            za + zb + zc
         ) / 3
 
-
         # ====================================================
-        # PARÂMETROS ADOTADOS
+        # PARAMETROS ADOTADOS
         # ====================================================
 
         st.markdown("---")
 
-
         st.subheader(
-            "📋 PARÂMETROS ADOTADOS"
+            "📋 PARAMETROS ADOTADOS"
         )
 
+        if n_sub == 2:
+
+            texto_espacamento = (
+                f"{dist_sub:.3f} m"
+            )
+
+        else:
+
+            texto_espacamento = "N/A"
+
+        if tem_pr:
+
+            texto_para_raio = (
+                cabo_pr_nome
+            )
+
+        else:
+
+            texto_para_raio = (
+                "Nao considerado"
+            )
 
         parametros = {
-            "Frequência":
+            "Frequencia":
                 f"{frequencia:.2f} Hz",
 
             "Cabo fase":
@@ -914,52 +841,41 @@ if calcular:
             "Subcondutores por fase":
                 n_sub,
 
-            "Espaçamento do feixe":
-                (
-                    f"{dist_sub:.3f} m"
-                    if n_sub == 2
-                    else "N/A"
-                ),
+            "Espacamento do feixe":
+                texto_espacamento,
 
             "R do cabo individual":
-                f"{cf['R']:.6f} Ω/km",
+                f"{r_individual:.6f} ohm/km",
 
             "R equivalente da fase":
-                f"{Rf:.6f} Ω/km",
+                f"{rf:.6f} ohm/km",
 
             "GMR individual":
-                f"{GMR_base:.6f} m",
+                f"{gmr_base:.6f} m",
 
             "GMR equivalente":
-                f"{GMR_f:.6f} m",
+                f"{gmr_f:.6f} m",
 
             "Cabo para-raio":
-                (
-                    cabo_pr_nome
-                    if tem_pr
-                    else "Não considerado"
-                ),
+                texto_para_raio,
 
             "Ajuste de altura":
-                f"{delta_altura:.2f} m"
+                f"{delta_altura:.2f} m",
         }
 
-
         df_parametros = pd.DataFrame(
-            list(parametros.items()),
+            parametros.items(),
             columns=[
-                "Parâmetro",
-                "Valor"
-            ]
+                "Parametro",
+                "Valor",
+            ],
         )
-
 
         st.dataframe(
             df_parametros,
             hide_index=True,
-            use_container_width=True
+            use_container_width=True,
         )
-
 
         # ====================================================
         # RESULTADO PRINCIPAL
@@ -967,124 +883,110 @@ if calcular:
 
         st.markdown("---")
 
-
         st.subheader(
             "🎯 RESULTADO PRINCIPAL"
         )
 
+        res1, res2, res3 = st.columns(3)
 
-        resultado1, resultado2, resultado3 = st.columns(3)
-
-
-        with resultado1:
+        with res1:
 
             st.metric(
-                "R médio",
-                f"{Z_med.real:.6f} Ω/km"
+                "R medio",
+                f"{z_med.real:.6f} ohm/km",
             )
 
-
-        with resultado2:
+        with res2:
 
             st.metric(
-                "X médio",
-                f"{Z_med.imag:.6f} Ω/km"
+                "X medio",
+                f"{z_med.imag:.6f} ohm/km",
             )
 
-
-        with resultado3:
+        with res3:
 
             st.metric(
-                "|Z| médio",
-                f"{abs(Z_med):.6f} Ω/km"
+                "Modulo de Z medio",
+                f"{abs(z_med):.6f} ohm/km",
             )
 
-
-        angulo = np.angle(
-            Z_med,
-            deg=True
+        angulo_medio = np.angle(
+            z_med,
+            deg=True,
         )
-
 
         st.info(
-            f"Z médio = "
-            f"{Z_med.real:.6f} "
-            f"{Z_med.imag:+.6f}j Ω/km"
-            f" | "
-            f"Ângulo = {angulo:.3f}°"
+            f"Z medio = "
+            f"{z_med.real:.6f} "
+            f"{z_med.imag:+.6f}j ohm/km"
+            f" | Angulo = "
+            f"{angulo_medio:.3f} graus"
         )
 
-
         # ====================================================
-        # RESULTADOS POR FASE
+        # IMPEDANCIA POR FASE
         # ====================================================
 
         st.markdown("---")
 
-
         st.subheader(
-            "📊 IMPEDÂNCIA CALCULADA POR FASE"
+            "📊 IMPEDANCIA CALCULADA POR FASE"
         )
-
 
         resultados = [
             {
                 "Fase": "A",
-                "R (Ω/km)": ZA.real,
-                "X (Ω/km)": ZA.imag,
-                "|Z| (Ω/km)": abs(ZA),
-                "Ângulo (°)": np.angle(
-                    ZA,
-                    deg=True
-                )
+                "R (ohm/km)": za.real,
+                "X (ohm/km)": za.imag,
+                "Modulo Z (ohm/km)": abs(za),
+                "Angulo (graus)": np.angle(
+                    za,
+                    deg=True,
+                ),
             },
-
             {
                 "Fase": "B",
-                "R (Ω/km)": ZB.real,
-                "X (Ω/km)": ZB.imag,
-                "|Z| (Ω/km)": abs(ZB),
-                "Ângulo (°)": np.angle(
-                    ZB,
-                    deg=True
-                )
+                "R (ohm/km)": zb.real,
+                "X (ohm/km)": zb.imag,
+                "Modulo Z (ohm/km)": abs(zb),
+                "Angulo (graus)": np.angle(
+                    zb,
+                    deg=True,
+                ),
             },
-
             {
                 "Fase": "C",
-                "R (Ω/km)": ZC.real,
-                "X (Ω/km)": ZC.imag,
-                "|Z| (Ω/km)": abs(ZC),
-                "Ângulo (°)": np.angle(
-                    ZC,
-                    deg=True
-                )
+                "R (ohm/km)": zc.real,
+                "X (ohm/km)": zc.imag,
+                "Modulo Z (ohm/km)": abs(zc),
+                "Angulo (graus)": np.angle(
+                    zc,
+                    deg=True,
+                ),
             },
-
             {
-                "Fase": "Média",
-                "R (Ω/km)": Z_med.real,
-                "X (Ω/km)": Z_med.imag,
-                "|Z| (Ω/km)": abs(Z_med),
-                "Ângulo (°)": np.angle(
-                    Z_med,
-                    deg=True
-                )
-            }
+                "Fase": "Media",
+                "R (ohm/km)": z_med.real,
+                "X (ohm/km)": z_med.imag,
+                "Modulo Z (ohm/km)": abs(z_med),
+                "Angulo (graus)": np.angle(
+                    z_med,
+                    deg=True,
+                ),
+            },
         ]
-
 
         df_resultados = pd.DataFrame(
             resultados
         )
 
-
         st.dataframe(
-            df_resultados,
+            df_resultados.style.format(
+                precision=6
+            ),
             hide_index=True,
-            use_container_width=True
+            use_container_width=True,
         )
-
 
         # ====================================================
         # MATRIZES
@@ -1092,138 +994,147 @@ if calcular:
 
         st.markdown("---")
 
-
         st.subheader(
             "🧮 MATRIZES"
         )
 
-
-        abas = st.tabs(
+        (
+            tab_indutancia,
+            tab_reatancia,
+            tab_resistencia,
+            tab_impedancia,
+            tab_reduzida,
+        ) = st.tabs(
             [
-                "Indutância",
-                "Reatância",
-                "Resistência",
-                "Impedância",
-                "Matriz reduzida"
+                "Indutancia",
+                "Reatancia",
+                "Resistencia",
+                "Impedancia",
+                "Matriz reduzida",
             ]
         )
 
+        # ----------------------------------------------------
+        # INDUTANCIA
+        # ----------------------------------------------------
 
-        # ====================================================
-        # INDUTÂNCIA
-        # ====================================================
+        with tab_indutancia:
 
-        with abasst.caption(
-                "Matriz de indutância L (H/km)"
+            st.caption(
+                "Matriz de indutancia L em H/km"
             )
 
-            df_L = criar_dataframe_real(
-                L,
-                condutores
+            df_l = df_real(
+                l_mat,
+                condutores,
             )
 
             st.dataframe(
-                df_L.style.format(
+                df_l.style.format(
                     "{:.9f}"
                 ),
-                use_container_width=True
+                use_container_width=True,
             )
 
+        # ----------------------------------------------------
+        # REATANCIA
+        # ----------------------------------------------------
 
-        # ====================================================
-        # REATÂNCIA
-        # ====================================================
+        with tab_reatancia:
 
-        with abasst.caption(
-                "Matriz de reatância X (Ω/km)"
+            st.caption(
+                "Matriz de reatancia X em ohm/km"
             )
 
-            df_X = criar_dataframe_real(
-                X,
-                condutores
+            df_x = df_real(
+                x_mat,
+                condutores,
             )
 
             st.dataframe(
-                df_X.style.format(
+                df_x.style.format(
                     "{:.6f}"
                 ),
-                use_container_width=True
+                use_container_width=True,
             )
 
+        # ----------------------------------------------------
+        # RESISTENCIA
+        # ----------------------------------------------------
 
-        # ====================================================
-        # RESISTÊNCIA
-        # ====================================================
+        with tab_resistencia:
 
-        with abasst.caption(
-                "Matriz de resistência R (Ω/km)"
+            st.caption(
+                "Matriz de resistencia R em ohm/km"
             )
 
-            df_R = criar_dataframe_real(
-                R,
-                condutores
+            df_r = df_real(
+                r_mat,
+                condutores,
             )
 
             st.dataframe(
-                df_R.style.format(
+                df_r.style.format(
                     "{:.6f}"
                 ),
-                use_container_width=True
+                use_container_width=True,
             )
 
+        # ----------------------------------------------------
+        # IMPEDANCIA
+        # ----------------------------------------------------
 
-        # ====================================================
-        # IMPEDÂNCIA
-        # ====================================================
+        with tab_impedancia:
 
-        with abasst.caption(
-                "Matriz de impedância Z (Ω/km)"
+            st.caption(
+                "Matriz de impedancia "
+                "Z = R + jX em ohm/km"
             )
 
-            df_Z = criar_dataframe_complexo(
-                Z,
-                condutores
+            df_z = df_complexo(
+                z_mat,
+                condutores,
             )
 
             st.dataframe(
-                df_Z,
-                use_container_width=True
+                df_z,
+                use_container_width=True,
             )
 
-
-        # ====================================================
+        # ----------------------------------------------------
         # MATRIZ REDUZIDA
-        # ====================================================
+        # ----------------------------------------------------
 
-        with abasif tem_pr:
+        with tab_reduzida:
+
+            if tem_pr:
 
                 st.caption(
-                    "Matriz das fases após "
-                    "a redução de Kron"
+                    "Matriz das fases apos "
+                    "a reducao de Kron"
                 )
 
             else:
 
                 st.caption(
-                    "Matriz das fases"
+                    "Sem para-raio, a matriz "
+                    "reduzida coincide com a "
+                    "matriz das fases"
                 )
 
-
-            df_Z_red = criar_dataframe_complexo(
-                Z_red,
+            df_z_red = df_complexo(
+                z_red,
                 [
                     "A",
                     "B",
-                    "C"
-                ]
+                    "C",
+                ],
             )
-
 
             st.dataframe(
-                df_Z_red,
-                use_container_width=True
+                df_z_red,
+                use_container_width=True,
             )
-
 
         # ====================================================
         # GEOMETRIA
@@ -1231,122 +1142,97 @@ if calcular:
 
         st.markdown("---")
 
-
         st.subheader(
             "📈 GEOMETRIA DA LINHA"
         )
-
 
         figura = plotar_geometria(
             coords
         )
 
-
         st.pyplot(
             figura,
-            use_container_width=True
+            use_container_width=True,
         )
-
 
         plt.close(
             figura
         )
 
-
         # ====================================================
-        # INFORMAÇÕES ADICIONAIS
+        # INFORMACOES ADICIONAIS
         # ====================================================
-
-        st.markdown("---")
-
 
         with st.expander(
-            "ℹ️ INFORMAÇÕES ADICIONAIS",
-            expanded=False
+            "ℹ️ INFORMACOES ADICIONAIS",
+            expanded=False,
         ):
 
-            st.markdown(
-                "#### Resistência equivalente"
+            st.write(
+                "A resistencia equivalente da fase "
+                "e dividida pelo numero de "
+                "subcondutores em paralelo."
             )
-
 
             st.latex(
                 r"R_{eq} = \frac{R}{n}"
             )
 
-
             st.write(
                 f"R individual = "
-                f"{cf['R']:.6f} Ω/km"
+                f"{r_individual:.6f} ohm/km"
             )
 
-
             st.write(
-                f"Número de subcondutores = "
+                f"Numero de subcondutores = "
                 f"{n_sub}"
             )
 
-
             st.write(
                 f"R equivalente = "
-                f"{Rf:.6f} Ω/km"
+                f"{rf:.6f} ohm/km"
             )
-
-
-            st.markdown(
-                "#### GMR equivalente"
-            )
-
 
             if n_sub == 1:
 
                 st.latex(
-                    r"GMR_{eq}=GMR"
+                    r"GMR_{eq} = GMR"
                 )
-
 
             else:
 
                 st.latex(
-                    r"GMR_{eq}="
+                    r"GMR_{eq} = "
                     r"\sqrt{GMR \cdot d}"
                 )
 
-
             st.write(
                 f"GMR equivalente = "
-                f"{GMR_f:.6f} m"
+                f"{gmr_f:.6f} m"
             )
-
 
             if tem_pr:
 
-                st.markdown(
-                    "#### Redução de Kron"
-                )
-
-
                 st.latex(
-                    r"Z_{red}="
-                    r"Z_{ff}-"
+                    r"Z_{red} = "
+                    r"Z_{ff} - "
                     r"Z_{fp}"
                     r"Z_{pp}^{-1}"
                     r"Z_{pf}"
                 )
 
-
             st.warning(
-                "O Z médio apresentado segue "
-                "a formulação do código original "
-                "e não deve ser interpretado "
-                "automaticamente como Z₁."
+                "O Z medio apresentado segue a "
+                "formulacao do codigo original e "
+                "nao deve ser interpretado "
+                "automaticamente como impedancia "
+                "de sequencia positiva Z1."
             )
-
 
     except Exception as erro:
 
         st.error(
-            f"❌ Erro no cálculo: {erro}"
+            f"Erro no calculo: {erro}"
         )
 
         st.exception(
