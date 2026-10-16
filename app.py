@@ -9,17 +9,17 @@ import matplotlib.pyplot as plt
 # ============================================================
 
 st.set_page_config(
-    page_title="Calculadora de Impedancia de Linhas Aereas",
+    page_title="Calculadora de Impedância de Linhas Aéreas",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-st.title("⚡ Calculadora de Impedancia de Linhas Aereas")
+st.title("⚡ Calculadora de Impedância de Linhas Aéreas")
 
 st.caption(
-    "Calculo das matrizes de indutancia, reatancia, "
-    "resistencia e impedancia serie da linha."
+    "Calculo das matrizes de indutância, reatância, "
+    "resistencia e impedância série da linha."
 )
 
 st.markdown("---")
@@ -90,7 +90,7 @@ CABOS_PR = {
 
 
 # ============================================================
-# FUNCOES
+# FUNÇÕES 
 # ============================================================
 
 def altura_equivalente(y, flecha, delta_h):
@@ -227,7 +227,7 @@ col1, col2 = st.columns(
 with col1:
 
     st.subheader(
-        "⚙️ 1. CONFIGURACOES GERAIS"
+        "⚙️ 1. CONFIGURAÇÕES GERAIS"
     )
 
     frequencia = st.number_input(
@@ -463,13 +463,13 @@ with col2:
 
 
 # ============================================================
-# BOTAO
+# BOTÃO 
 # ============================================================
 
 st.markdown("---")
 
 calcular = st.button(
-    "🔍 Calcular parametros eletricos",
+    "🔍 Calcular parâmetros elétricos",
     type="primary",
     use_container_width=True,
 )
@@ -494,7 +494,7 @@ if calcular:
         gmr_base = cf["GMR"]
         r_individual = cf["R"]
 
-        # A resistencia e dividida pelo numero
+        # A resistência e dividida pelo número 
         # de subcondutores em paralelo.
 
         rf = r_individual / n_sub
@@ -595,7 +595,7 @@ if calcular:
                 )
 
         # ----------------------------------------------------
-        # VALIDACAO DAS DISTANCIAS
+        # VALIDAÇÃO DAS DISTÂNCIAS 
         # ----------------------------------------------------
 
         for i in range(n):
@@ -621,7 +621,7 @@ if calcular:
                     )
 
         # ====================================================
-        # MATRIZ DE INDUTANCIA
+        # MATRIZ DE INDUTÂNCIA 
         # ====================================================
 
         l_mat = np.zeros(
@@ -681,7 +681,7 @@ if calcular:
         l_mat = l_mat * 1000
 
         # ====================================================
-        # MATRIZ DE REATANCIA
+        # MATRIZ DE REATÂNCIA 
         # ====================================================
 
         x_mat = (
@@ -692,7 +692,7 @@ if calcular:
         )
 
         # ====================================================
-        # MATRIZ DE RESISTENCIA
+        # MATRIZ DE RESISTÊNCIA 
         # ====================================================
 
         r_mat = np.zeros_like(
@@ -708,7 +708,7 @@ if calcular:
             r_mat[3, 3] = rp
 
         # ====================================================
-        # MATRIZ DE IMPEDANCIA
+        # MATRIZ DE IMPEDÂNCIA 
         # ====================================================
 
         z_mat = (
@@ -717,7 +717,7 @@ if calcular:
         )
 
         # ====================================================
-        # REDUCAO DE KRON
+        # REDUÇÃO DE KRON
         # ====================================================
 
         if tem_pr:
@@ -751,7 +751,7 @@ if calcular:
             if abs(z_pp) == 0:
 
                 raise ValueError(
-                    "A impedancia do cabo "
+                    "A impedância do cabo "
                     "para-raio nao pode ser zero."
                 )
 
@@ -765,7 +765,7 @@ if calcular:
             z_red = z_mat
 
         # ====================================================
-        # IMPEDANCIAS POR FASE
+        # IMPEDÂNCIAS POR FASE
         # ====================================================
 
         za = (
@@ -800,13 +800,13 @@ if calcular:
         ) / 3
 
         # ====================================================
-        # PARAMETROS ADOTADOS
+        # PARÂMETROS ADOTADOS
         # ====================================================
 
         st.markdown("---")
 
         st.subheader(
-            "📋 PARAMETROS ADOTADOS"
+            "📋 PARÂMETROS ADOTADOS"
         )
 
         if n_sub == 2:
@@ -828,11 +828,11 @@ if calcular:
         else:
 
             texto_para_raio = (
-                "Nao considerado"
+                "Não considerado"
             )
 
         parametros = {
-            "Frequencia":
+            "Frequência":
                 f"{frequencia:.2f} Hz",
 
             "Cabo fase":
@@ -841,7 +841,7 @@ if calcular:
             "Subcondutores por fase":
                 n_sub,
 
-            "Espacamento do feixe":
+            "Espaçamento do feixe":
                 texto_espacamento,
 
             "R do cabo individual":
@@ -866,7 +866,7 @@ if calcular:
         df_parametros = pd.DataFrame(
             parametros.items(),
             columns=[
-                "Parametro",
+                "Parâmetro",
                 "Valor",
             ],
         )
@@ -892,21 +892,21 @@ if calcular:
         with res1:
 
             st.metric(
-                "R medio",
+                "R médio",
                 f"{z_med.real:.6f} ohm/km",
             )
 
         with res2:
 
             st.metric(
-                "X medio",
+                "X médio",
                 f"{z_med.imag:.6f} ohm/km",
             )
 
         with res3:
 
             st.metric(
-                "Modulo de Z medio",
+                "Módulo de Z médio",
                 f"{abs(z_med):.6f} ohm/km",
             )
 
@@ -916,21 +916,21 @@ if calcular:
         )
 
         st.info(
-            f"Z medio = "
+            f"Z médio = "
             f"{z_med.real:.6f} "
             f"{z_med.imag:+.6f}j ohm/km"
-            f" | Angulo = "
+            f" | Ângulo = "
             f"{angulo_medio:.3f} graus"
         )
 
         # ====================================================
-        # IMPEDANCIA POR FASE
+        # IMPEDÂNCIA POR FASE
         # ====================================================
 
         st.markdown("---")
 
         st.subheader(
-            "📊 IMPEDANCIA CALCULADA POR FASE"
+            "📊 IMPEDÂNCIA CALCULADA POR FASE"
         )
 
         resultados = [
@@ -938,8 +938,8 @@ if calcular:
                 "Fase": "A",
                 "R (ohm/km)": za.real,
                 "X (ohm/km)": za.imag,
-                "Modulo Z (ohm/km)": abs(za),
-                "Angulo (graus)": np.angle(
+                "Módulo Z (ohm/km)": abs(za),
+                "Ângulo (graus)": np.angle(
                     za,
                     deg=True,
                 ),
@@ -948,8 +948,8 @@ if calcular:
                 "Fase": "B",
                 "R (ohm/km)": zb.real,
                 "X (ohm/km)": zb.imag,
-                "Modulo Z (ohm/km)": abs(zb),
-                "Angulo (graus)": np.angle(
+                "Módulo Z (ohm/km)": abs(zb),
+                "Ângulo (graus)": np.angle(
                     zb,
                     deg=True,
                 ),
@@ -958,18 +958,18 @@ if calcular:
                 "Fase": "C",
                 "R (ohm/km)": zc.real,
                 "X (ohm/km)": zc.imag,
-                "Modulo Z (ohm/km)": abs(zc),
-                "Angulo (graus)": np.angle(
+                "Módulo Z (ohm/km)": abs(zc),
+                "Ângulo (graus)": np.angle(
                     zc,
                     deg=True,
                 ),
             },
             {
-                "Fase": "Media",
+                "Fase": "Média",
                 "R (ohm/km)": z_med.real,
                 "X (ohm/km)": z_med.imag,
-                "Modulo Z (ohm/km)": abs(z_med),
-                "Angulo (graus)": np.angle(
+                "Módulo Z (ohm/km)": abs(z_med),
+                "Ângulo (graus)": np.angle(
                     z_med,
                     deg=True,
                 ),
@@ -1006,22 +1006,22 @@ if calcular:
             tab_reduzida,
         ) = st.tabs(
             [
-                "Indutancia",
-                "Reatancia",
-                "Resistencia",
-                "Impedancia",
+                "Indutância",
+                "Reatância",
+                "Resistência",
+                "Impedância",
                 "Matriz reduzida",
             ]
         )
 
         # ----------------------------------------------------
-        # INDUTANCIA
+        # INDUTÂNCIA 
         # ----------------------------------------------------
 
         with tab_indutancia:
 
             st.caption(
-                "Matriz de indutancia L em H/km"
+                "Matriz de indutância L em H/km"
             )
 
             df_l = df_real(
@@ -1037,13 +1037,13 @@ if calcular:
             )
 
         # ----------------------------------------------------
-        # REATANCIA
+        # REATÂNCIA 
         # ----------------------------------------------------
 
         with tab_reatancia:
 
             st.caption(
-                "Matriz de reatancia X em ohm/km"
+                "Matriz de reatância X em ohm/km"
             )
 
             df_x = df_real(
@@ -1059,13 +1059,13 @@ if calcular:
             )
 
         # ----------------------------------------------------
-        # RESISTENCIA
+        # RESISTÊNCIA 
         # ----------------------------------------------------
 
         with tab_resistencia:
 
             st.caption(
-                "Matriz de resistencia R em ohm/km"
+                "Matriz de resistência R em ohm/km"
             )
 
             df_r = df_real(
@@ -1081,13 +1081,13 @@ if calcular:
             )
 
         # ----------------------------------------------------
-        # IMPEDANCIA
+        # IMPEDÂNCIA 
         # ----------------------------------------------------
 
         with tab_impedancia:
 
             st.caption(
-                "Matriz de impedancia "
+                "Matriz de impedância "
                 "Z = R + jX em ohm/km"
             )
 
@@ -1110,8 +1110,8 @@ if calcular:
             if tem_pr:
 
                 st.caption(
-                    "Matriz das fases apos "
-                    "a reducao de Kron"
+                    "Matriz das fases após "
+                    "a redução de Kron"
                 )
 
             else:
@@ -1160,17 +1160,17 @@ if calcular:
         )
 
         # ====================================================
-        # INFORMACOES ADICIONAIS
+        # INFORMAÇÕES ADICIONAIS
         # ====================================================
 
         with st.expander(
-            "ℹ️ INFORMACOES ADICIONAIS",
+            "ℹ️ INFORMAÇÕES ADICIONAIS",
             expanded=False,
         ):
 
             st.write(
                 "A resistencia equivalente da fase "
-                "e dividida pelo numero de "
+                "e dividida pelo número de "
                 "subcondutores em paralelo."
             )
 
@@ -1184,7 +1184,7 @@ if calcular:
             )
 
             st.write(
-                f"Numero de subcondutores = "
+                f"Número de subcondutores = "
                 f"{n_sub}"
             )
 
@@ -1222,11 +1222,11 @@ if calcular:
                 )
 
             st.warning(
-                "O Z medio apresentado segue a "
-                "formulacao do codigo original e "
+                "O Z médio apresentado segue a "
+                "formulação do código original e "
                 "nao deve ser interpretado "
-                "automaticamente como impedancia "
-                "de sequencia positiva Z1."
+                "automaticamente como impedância "
+                "de sequência positiva Z1."
             )
 
     except Exception as erro:
