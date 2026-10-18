@@ -1033,57 +1033,45 @@ if calcular:
             "🧮 MATRIZES"
         )
 
-        formato_polar = st.toggle(
-            "🔁 Exibir matrizes em formato polar (|Z| ∠ θ)",
-            value=False,
-            help=(
-                "Desligado: formato retangular (R + jX). "
-                "Ligado: módulo e ângulo."
-            ),
-        )
-
-        (
-            tab_indutancia,
-            tab_reatancia,
-            tab_resistencia,
-            tab_impedancia,
-            tab_reduzida,
-        ) = st.tabs(
+        tab_retangular, tab_polar = st.tabs(
             [
-                "Indutância",
-                "Reatância",
-                "Resistência",
-                "Impedância",
-                "Matriz reduzida",
+                "Retangular (R + jX)",
+                "Polar (|Z| ∠ θ)",
             ]
         )
 
         # ----------------------------------------------------
-        # INDUTÂNCIA 
+        # ABA EXTERNA: RETANGULAR
         # ----------------------------------------------------
 
-        with tab_indutancia:
+        with tab_retangular:
 
-            st.caption(
-                "Matriz de indutância L em H/km"
+            (
+                tab_indutancia,
+                tab_reatancia,
+                tab_resistencia,
+                tab_impedancia,
+                tab_reduzida,
+            ) = st.tabs(
+                [
+                    "Indutância",
+                    "Reatância",
+                    "Resistência",
+                    "Impedância",
+                    "Matriz reduzida",
+                ]
             )
 
-            df_l = df_real(
-                l_mat,
-                condutores,
-            )
+            with tab_indutancia:
 
-            if formato_polar:
-
-                st.dataframe(
-                    df_polar(
-                        l_mat,
-                        condutores,
-                    ),
-                    use_container_width=True,
+                st.caption(
+                    "Matriz de indutância L em H/km"
                 )
 
-            else:
+                df_l = df_real(
+                    l_mat,
+                    condutores,
+                )
 
                 st.dataframe(
                     df_l.style.format(
@@ -1092,32 +1080,16 @@ if calcular:
                     use_container_width=True,
                 )
 
-        # ----------------------------------------------------
-        # REATÂNCIA 
-        # ----------------------------------------------------
+            with tab_reatancia:
 
-        with tab_reatancia:
-
-            st.caption(
-                "Matriz de reatância X em ohm/km"
-            )
-
-            df_x = df_real(
-                x_mat,
-                condutores,
-            )
-
-            if formato_polar:
-
-                st.dataframe(
-                    df_polar(
-                        x_mat,
-                        condutores,
-                    ),
-                    use_container_width=True,
+                st.caption(
+                    "Matriz de reatância X em ohm/km"
                 )
 
-            else:
+                df_x = df_real(
+                    x_mat,
+                    condutores,
+                )
 
                 st.dataframe(
                     df_x.style.format(
@@ -1126,32 +1098,16 @@ if calcular:
                     use_container_width=True,
                 )
 
-        # ----------------------------------------------------
-        # RESISTÊNCIA 
-        # ----------------------------------------------------
+            with tab_resistencia:
 
-        with tab_resistencia:
-
-            st.caption(
-                "Matriz de resistência R em ohm/km"
-            )
-
-            df_r = df_real(
-                r_mat,
-                condutores,
-            )
-
-            if formato_polar:
-
-                st.dataframe(
-                    df_polar(
-                        r_mat,
-                        condutores,
-                    ),
-                    use_container_width=True,
+                st.caption(
+                    "Matriz de resistência R em ohm/km"
                 )
 
-            else:
+                df_r = df_real(
+                    r_mat,
+                    condutores,
+                )
 
                 st.dataframe(
                     df_r.style.format(
@@ -1160,30 +1116,12 @@ if calcular:
                     use_container_width=True,
                 )
 
-        # ----------------------------------------------------
-        # IMPEDÂNCIA 
-        # ----------------------------------------------------
+            with tab_impedancia:
 
-        with tab_impedancia:
-
-            st.caption(
-                "Matriz de impedância "
-                "Z = R + jX em ohm/km "
-                "(no modo polar: |Z| em ohm/km "
-                "e ângulo em graus)"
-            )
-
-            if formato_polar:
-
-                st.dataframe(
-                    df_polar(
-                        z_mat,
-                        condutores,
-                    ),
-                    use_container_width=True,
+                st.caption(
+                    "Matriz de impedância "
+                    "Z = R + jX em ohm/km"
                 )
-
-            else:
 
                 df_z = df_complexo(
                     z_mat,
@@ -1195,42 +1133,22 @@ if calcular:
                     use_container_width=True,
                 )
 
-        # ----------------------------------------------------
-        # MATRIZ REDUZIDA
-        # ----------------------------------------------------
+            with tab_reduzida:
 
-        with tab_reduzida:
+                if tem_pr:
 
-            if tem_pr:
+                    st.caption(
+                        "Matriz das fases após "
+                        "a redução de Kron"
+                    )
 
-                st.caption(
-                    "Matriz das fases após "
-                    "a redução de Kron"
-                )
+                else:
 
-            else:
-
-                st.caption(
-                    "Sem para-raio, a matriz "
-                    "reduzida coincide com a "
-                    "matriz das fases"
-                )
-
-            if formato_polar:
-
-                st.dataframe(
-                    df_polar(
-                        z_red,
-                        [
-                            "A",
-                            "B",
-                            "C",
-                        ],
-                    ),
-                    use_container_width=True,
-                )
-
-            else:
+                    st.caption(
+                        "Sem para-raio, a matriz "
+                        "reduzida coincide com a "
+                        "matriz das fases"
+                    )
 
                 df_z_red = df_complexo(
                     z_red,
@@ -1243,6 +1161,118 @@ if calcular:
 
                 st.dataframe(
                     df_z_red,
+                    use_container_width=True,
+                )
+
+        # ----------------------------------------------------
+        # ABA EXTERNA: POLAR
+        # ----------------------------------------------------
+
+        with tab_polar:
+
+            (
+                tab_indutancia_p,
+                tab_reatancia_p,
+                tab_resistencia_p,
+                tab_impedancia_p,
+                tab_reduzida_p,
+            ) = st.tabs(
+                [
+                    "Indutância",
+                    "Reatância",
+                    "Resistência",
+                    "Impedância",
+                    "Matriz reduzida",
+                ]
+            )
+
+            with tab_indutancia_p:
+
+                st.caption(
+                    "Matriz de indutância L em H/km "
+                    "no formato polar (|L| ∠ θ)"
+                )
+
+                st.dataframe(
+                    df_polar(
+                        l_mat,
+                        condutores,
+                    ),
+                    use_container_width=True,
+                )
+
+            with tab_reatancia_p:
+
+                st.caption(
+                    "Matriz de reatância X em ohm/km "
+                    "no formato polar (|X| ∠ θ)"
+                )
+
+                st.dataframe(
+                    df_polar(
+                        x_mat,
+                        condutores,
+                    ),
+                    use_container_width=True,
+                )
+
+            with tab_resistencia_p:
+
+                st.caption(
+                    "Matriz de resistência R em ohm/km "
+                    "no formato polar (|R| ∠ θ)"
+                )
+
+                st.dataframe(
+                    df_polar(
+                        r_mat,
+                        condutores,
+                    ),
+                    use_container_width=True,
+                )
+
+            with tab_impedancia_p:
+
+                st.caption(
+                    "Matriz de impedância "
+                    "em ohm/km, formato polar "
+                    "(|Z| em ohm/km e ângulo em graus)"
+                )
+
+                st.dataframe(
+                    df_polar(
+                        z_mat,
+                        condutores,
+                    ),
+                    use_container_width=True,
+                )
+
+            with tab_reduzida_p:
+
+                if tem_pr:
+
+                    st.caption(
+                        "Matriz das fases após "
+                        "a redução de Kron, em polar"
+                    )
+
+                else:
+
+                    st.caption(
+                        "Sem para-raio, a matriz "
+                        "reduzida coincide com a "
+                        "matriz das fases, em polar"
+                    )
+
+                st.dataframe(
+                    df_polar(
+                        z_red,
+                        [
+                            "A",
+                            "B",
+                            "C",
+                        ],
+                    ),
                     use_container_width=True,
                 )
 
