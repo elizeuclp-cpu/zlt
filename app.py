@@ -143,22 +143,13 @@ def plotar_geometria(coords, nomes_c1=("A", "B", "C"),
 
     fig, ax = plt.subplots(figsize=(8, 5))
 
-    cores_c1 = {
+    cores_fase = {
         "A": "red",
         "B": "blue",
-        "C": "green",
-    }
-
-    cores_c2 = {
-        "A2": "orange",
-        "B2": "cyan",
-        "C2": "magenta",
-    }
-
-    cores_pr = {
-        "P": "gray",
-        "P1": "gray",
-        "P2": "dimgray",
+        "C": "black",
+        "A2": "red",
+        "B2": "blue",
+        "C2": "black",
     }
 
     marcadores = {
@@ -172,12 +163,10 @@ def plotar_geometria(coords, nomes_c1=("A", "B", "C"),
         x = ponto[0]
         y = ponto[1]
 
-        if nome in cores_c1:
-            cor = cores_c1[nome]
-        elif nome in cores_c2:
-            cor = cores_c2[nome]
-        elif nome in cores_pr:
-            cor = cores_pr[nome]
+        if nome in cores_fase:
+            cor = cores_fase[nome]
+        elif nome in ("P", "P1", "P2"):
+            cor = "gray"
         else:
             cor = "black"
 
@@ -191,7 +180,7 @@ def plotar_geometria(coords, nomes_c1=("A", "B", "C"),
             marker=marcador,
             zorder=3,
             edgecolors="black",
-            linewidths=0.5,
+            linewidths=0.8,
         )
 
         ax.annotate(
@@ -325,21 +314,21 @@ with col2:
 
     a1, a2 = st.columns(2)
     with a1:
-        xa = st.number_input("XA1 (m)", value=-2.0, step=0.1)
+        xa = st.number_input("XA1 (m)", value=0.0, step=0.1)
     with a2:
-        ya = st.number_input("YA1 (m)", value=20.0, step=0.1)
+        ya = st.number_input("YA1 (m)", value=28.0, step=0.1)
 
     b1, b2 = st.columns(2)
     with b1:
         xb = st.number_input("XB1 (m)", value=0.0, step=0.1)
     with b2:
-        yb = st.number_input("YB1 (m)", value=18.0, step=0.1)
+        yb = st.number_input("YB1 (m)", value=26.0, step=0.1)
 
     c1, c2 = st.columns(2)
     with c1:
-        xc = st.number_input("XC1 (m)", value=2.0, step=0.1)
+        xc = st.number_input("XC1 (m)", value=0.0, step=0.1)
     with c2:
-        yc = st.number_input("YC1 (m)", value=20.0, step=0.1)
+        yc = st.number_input("YC1 (m)", value=24.0, step=0.1)
 
     # --------------------------------------------------------
     # PARA-RAIO C1
@@ -362,7 +351,7 @@ with col2:
         with p1c:
             xp = st.number_input("XP1 (m)", value=0.0, step=0.1)
         with p2c:
-            yp = st.number_input("YP1 (m)", value=23.0, step=0.1)
+            yp = st.number_input("YP1 (m)", value=30.0, step=0.1)
     else:
         cabo_pr_nome = None
         flecha_pr = 0.0
@@ -390,21 +379,21 @@ with col2:
 
         a2_1, a2_2 = st.columns(2)
         with a2_1:
-            xa2 = st.number_input("XA2 (m)", value=-2.0, step=0.1)
+            xa2 = st.number_input("XA2 (m)", value=4.0, step=0.1)
         with a2_2:
-            ya2 = st.number_input("YA2 (m)", value=27.0, step=0.1)
+            ya2 = st.number_input("YA2 (m)", value=28.0, step=0.1)
 
         b2_1, b2_2 = st.columns(2)
         with b2_1:
-            xb2 = st.number_input("XB2 (m)", value=0.0, step=0.1)
+            xb2 = st.number_input("XB2 (m)", value=4.0, step=0.1)
         with b2_2:
-            yb2 = st.number_input("YB2 (m)", value=25.0, step=0.1)
+            yb2 = st.number_input("YB2 (m)", value=26.0, step=0.1)
 
         c2_1, c2_2 = st.columns(2)
         with c2_1:
-            xc2 = st.number_input("XC2 (m)", value=2.0, step=0.1)
+            xc2 = st.number_input("XC2 (m)", value=4.0, step=0.1)
         with c2_2:
-            yc2 = st.number_input("YC2 (m)", value=27.0, step=0.1)
+            yc2 = st.number_input("YC2 (m)", value=24.0, step=0.1)
 
         # ----------------------------------------------------
         # CABO DAS FASES DO C2
@@ -470,7 +459,7 @@ with col2:
             )
             pp1, pp2 = st.columns(2)
             with pp1:
-                xp2 = st.number_input("XP2 (m)", value=0.0, step=0.1, key="xp2")
+                xp2 = st.number_input("XP2 (m)", value=4.0, step=0.1, key="xp2")
             with pp2:
                 yp2 = st.number_input("YP2 (m)", value=30.0, step=0.1, key="yp2")
         else:
@@ -499,7 +488,6 @@ with col2:
         )
 
     else:
-        # valores padrão para evitar NameError
         xa2 = ya2 = xb2 = yb2 = xc2 = yc2 = 0.0
         cabo_fase2_nome = None
         n_sub2 = 1
@@ -517,8 +505,6 @@ with col2:
 # ============================================================
 
 erros_validacao = []
-
-# --- Y digitados (devem ser > 0) ---
 
 if ya <= 0:
     erros_validacao.append(f"YA1 = {ya} m (deve ser > 0)")
@@ -539,7 +525,6 @@ if tem_c2:
     if tem_pr2 and yp2 <= 0:
         erros_validacao.append(f"YP2 = {yp2} m (deve ser > 0)")
 
-# --- Y equivalentes (após flecha e ΔH) também devem ser > 0 ---
 
 def checar_equivalente(nome, y_digitado, flecha):
     y_eq = altura_equivalente(y_digitado, flecha, delta_altura)
@@ -549,6 +534,7 @@ def checar_equivalente(nome, y_digitado, flecha):
             f"(flecha = {flecha} m e ΔH = {delta_altura} m). "
             f"Reduza a flecha ou o ΔH."
         )
+
 
 if ya > 0:
     checar_equivalente("A1", ya, flecha_fase)
@@ -577,6 +563,32 @@ if erros_validacao:
 
 
 # ============================================================
+# SESSION STATE — FLAG DE GEOMETRIA TESTADA
+# ============================================================
+
+if "geometria_testada" not in st.session_state:
+    st.session_state["geometria_testada"] = False
+
+_hash_atual = hash((
+    xa, ya, xb, yb, xc, yc,
+    xp, yp, flecha_pr if tem_pr else 0,
+    xa2 if tem_c2 else 0, ya2 if tem_c2 else 0,
+    xb2 if tem_c2 else 0, yb2 if tem_c2 else 0,
+    xc2 if tem_c2 else 0, yc2 if tem_c2 else 0,
+    xp2 if (tem_c2 and tem_pr2) else 0,
+    yp2 if (tem_c2 and tem_pr2) else 0,
+    flecha_fase, delta_altura,
+    flecha_fase2 if tem_c2 else 0,
+    flecha_pr2 if (tem_c2 and tem_pr2) else 0,
+    tem_pr, tem_c2, tem_pr2,
+))
+
+if st.session_state.get("hash_geo") != _hash_atual:
+    st.session_state["geometria_testada"] = False
+    st.session_state["hash_geo"] = _hash_atual
+
+
+# ============================================================
 # BOTÕES: TESTAR GEOMETRIA  +  CALCULAR
 # ============================================================
 
@@ -591,12 +603,26 @@ with col_btn1:
         disabled=bool(erros_validacao),
     )
 
+if testar_geometria and not erros_validacao:
+    st.session_state["geometria_testada"] = True
+
+if erros_validacao:
+    st.session_state["geometria_testada"] = False
+
 with col_btn2:
     calcular = st.button(
         "🔍 Calcular parâmetros elétricos",
         type="primary",
         use_container_width=True,
-        disabled=bool(erros_validacao),
+        disabled=(
+            bool(erros_validacao)
+            or not st.session_state["geometria_testada"]
+        ),
+        help=(
+            "Teste a geometria primeiro para liberar o cálculo."
+            if not st.session_state["geometria_testada"]
+            else None
+        ),
     )
 
 
@@ -604,7 +630,7 @@ with col_btn2:
 # BOTÃO "TESTAR GEOMETRIA" — desenha antes do cálculo
 # ============================================================
 
-if testar_geometria and not erros_validacao:
+if st.session_state["geometria_testada"] and not erros_validacao:
 
     coords_geo = {
         "A": [xa, altura_equivalente(ya, flecha_fase, delta_altura)],
@@ -643,10 +669,6 @@ if calcular and not erros_validacao:
 
     try:
 
-        # ====================================================
-        # C1 — CABO E PARÂMETROS
-        # ====================================================
-
         cf = CABOS_FASE[cabo_fase_nome]
         gmr_base = cf["GMR"]
         r_individual = cf["R"]
@@ -656,10 +678,6 @@ if calcular and not erros_validacao:
             gmr_f = gmr_base
         else:
             gmr_f = np.sqrt(gmr_base * dist_sub)
-
-        # ====================================================
-        # COORDENADAS C1
-        # ====================================================
 
         coords = {
             "A1": [xa, altura_equivalente(ya, flecha_fase, delta_altura)],
@@ -675,10 +693,6 @@ if calcular and not erros_validacao:
         else:
             gmr_p = None
             rp = None
-
-        # ====================================================
-        # COORDENADAS C2 (se houver)
-        # ====================================================
 
         gmr_f2 = None
         rf2 = None
@@ -706,10 +720,6 @@ if calcular and not erros_validacao:
                 rp2 = cp2["R"]
                 coords["P2"] = [xp2, altura_equivalente(yp2, flecha_pr2, delta_altura)]
 
-        # ====================================================
-        # LISTA ORDENADA DE CONDUTORES
-        # ====================================================
-
         condutores = ["A1", "B1", "C1"]
         if tem_c2:
             condutores += ["A2", "B2", "C2"]
@@ -721,10 +731,6 @@ if calcular and not erros_validacao:
         n = len(condutores)
         idx = {nome: i for i, nome in enumerate(condutores)}
 
-        # ====================================================
-        # VALIDAÇÃO DE DISTÂNCIAS NULAS
-        # ====================================================
-
         for i in range(n):
             for j in range(i + 1, n):
                 ci = condutores[i]
@@ -735,13 +741,8 @@ if calcular and not erros_validacao:
                         f"Os condutores {ci} e {cj} ocupam a mesma posição."
                     )
 
-        # ====================================================
-        # MATRIZ DE INDUTÂNCIA
-        # ====================================================
-
         l_mat = np.zeros((n, n), dtype=float)
 
-        # Mapa nome → GMR
         gmr_map = {}
         for nome in ["A1", "B1", "C1"]:
             gmr_map[nome] = gmr_f
@@ -766,17 +767,9 @@ if calcular and not erros_validacao:
                     d_img = distancia_imagem(pi, pj)
                     l_mat[i, j] = K * np.log(d_img / d_real)
 
-        l_mat = l_mat * 1000  # H/m → H/km
-
-        # ====================================================
-        # MATRIZ DE REATÂNCIA
-        # ====================================================
+        l_mat = l_mat * 1000
 
         x_mat = 2 * np.pi * frequencia * l_mat
-
-        # ====================================================
-        # MATRIZ DE RESISTÊNCIA
-        # ====================================================
 
         r_mat = np.zeros_like(l_mat)
         for nome in ["A1", "B1", "C1"]:
@@ -789,15 +782,7 @@ if calcular and not erros_validacao:
         if tem_c2 and tem_pr2:
             r_mat[idx["P2"], idx["P2"]] = rp2
 
-        # ====================================================
-        # MATRIZ DE IMPEDÂNCIA COMPLETA
-        # ====================================================
-
         z_mat = r_mat + 1j * x_mat
-
-        # ====================================================
-        # KRON — ELIMINAR PARA-RAIOS
-        # ====================================================
 
         idx_pr = []
         if tem_pr:
@@ -817,14 +802,9 @@ if calcular and not erros_validacao:
         else:
             z_red = z_mat[np.ix_(idx_fases, idx_fases)].copy()
 
-        # ====================================================
-        # C1 ISOLADO (SÓ PARA COMPARAÇÃO)
-        # ====================================================
-
-        # C1 sozinho no modelo — recalcula matriz 3×3 ou 4×4 só com C1
+        # C1 isolado
         if tem_pr:
             cond_c1_iso = ["A1", "B1", "C1", "P1"]
-            idx_c1_iso = {nome: i for i, nome in enumerate(cond_c1_iso)}
             n_iso = len(cond_c1_iso)
 
             l_iso = np.zeros((n_iso, n_iso), dtype=float)
@@ -854,7 +834,6 @@ if calcular and not erros_validacao:
             )
         else:
             cond_c1_iso = ["A1", "B1", "C1"]
-            n_iso = 3
             l_iso = np.zeros((3, 3), dtype=float)
             gmr_iso = {"A1": gmr_f, "B1": gmr_f, "C1": gmr_f}
 
@@ -876,29 +855,16 @@ if calcular and not erros_validacao:
             r_iso[2, 2] = rf
             z_c1_iso = r_iso + 1j * x_iso
 
-        # ====================================================
-        # Z VISTA 1 (k) — SE C2 EXISTIR
-        # ====================================================
-
         if tem_c2:
-
-            # Blocos da matriz pós-Kron (6×6): f1 (3), f2 (3)
-            # z_red está ordenado como [A1, B1, C1, A2, B2, C2]
             z_f1f1 = z_red[0:3, 0:3]
             z_f1f2 = z_red[0:3, 3:6]
             z_f2f2 = z_red[3:6, 3:6]
-
             z_vista_1 = z_f1f1 + k_relacao * z_f1f2
-
         else:
             z_f1f1 = z_red[0:3, 0:3]
             z_f1f2 = None
             z_f2f2 = None
             z_vista_1 = z_f1f1
-
-        # ====================================================
-        # IMPEDÂNCIA POR FASE (C1 ISOLADO)
-        # ====================================================
 
         def impedancias_por_fase(z3):
             za_ = z3[0, 0] - 0.5 * (z3[0, 1] + z3[0, 2])
@@ -908,12 +874,7 @@ if calcular and not erros_validacao:
             return za_, zb_, zc_, zmed_
 
         za_iso, zb_iso, zc_iso, zmed_iso = impedancias_por_fase(z_c1_iso)
-
         za_v, zb_v, zc_v, zmed_v = impedancias_por_fase(z_vista_1)
-
-        # ====================================================
-        # PARÂMETROS ADOTADOS
-        # ====================================================
 
         st.markdown("---")
         st.subheader("📋 PARÂMETROS ADOTADOS")
@@ -949,10 +910,6 @@ if calcular and not erros_validacao:
         )
 
         st.dataframe(df_parametros, hide_index=True, use_container_width=True)
-
-        # ====================================================
-        # RESULTADO PRINCIPAL
-        # ====================================================
 
         st.markdown("---")
         st.subheader("🎯 RESULTADO PRINCIPAL")
@@ -1006,10 +963,6 @@ if calcular and not erros_validacao:
                 f"Ângulo = {np.angle(zmed_v, deg=True):.3f}°"
             )
 
-        # ====================================================
-        # IMPEDÂNCIA POR FASE
-        # ====================================================
-
         st.markdown("---")
         st.subheader("📊 IMPEDÂNCIA CALCULADA POR FASE")
 
@@ -1051,10 +1004,6 @@ if calcular and not erros_validacao:
                 hide_index=True,
                 use_container_width=True,
             )
-
-        # ====================================================
-        # MATRIZES
-        # ====================================================
 
         st.markdown("---")
         st.subheader("🧮 MATRIZES")
@@ -1129,20 +1078,12 @@ if calcular and not erros_validacao:
                 use_container_width=True,
             )
 
-        # ====================================================
-        # GEOMETRIA (APÓS O CÁLCULO)
-        # ====================================================
-
         st.markdown("---")
         st.subheader("📈 GEOMETRIA DA LINHA")
 
         figura = plotar_geometria(coords)
         st.pyplot(figura, use_container_width=True)
         plt.close(figura)
-
-        # ====================================================
-        # INFORMAÇÕES ADICIONAIS
-        # ====================================================
 
         with st.expander("ℹ️ INFORMAÇÕES ADICIONAIS", expanded=False):
 
@@ -1190,10 +1131,6 @@ if calcular and not erros_validacao:
                 "e não deve ser interpretado automaticamente como "
                 "impedância de sequência positiva Z1."
             )
-
-        # ====================================================
-        # INFORMAÇÕES DO C2 (SE APLICÁVEL)
-        # ====================================================
 
         if tem_c2:
             with st.expander("🔍 DETALHES DO ACOPLAMENTO C1 ↔ C2", expanded=False):
